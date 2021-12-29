@@ -63,7 +63,7 @@ jobs:
         with:
          #username: ${{ secrets.DOCKERHUB_USERNAME }} #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
          #password: ${{ secrets.DOCKERHUB_PASSWORD }}
-         username: celiauclm #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
+         username: celiauclm
          password: Toledo012@
       - name: Etiquetar con formato dockerhub
         run: |
@@ -75,5 +75,5 @@ jobs:
         run: |
            #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:order
            #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:web
-           docker push partsunlimitedmrp/order celiauclm/partsunlimitedmrp:order
-           docker push partsunlimitedmrp/order celiauclm/partsunlimitedmrp:web
+           docker push celiauclm/partsunlimitedmrp:order
+           docker push celiauclm/partsunlimitedmrp:web
