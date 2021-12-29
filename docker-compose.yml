@@ -31,7 +31,7 @@ services:
                 condition: on-failure
         ports:
             - "8080:8080"
-   web:
+  web:
         image: celiauclm/partsunlimitedmpr:web
         deploy:
             replicas: 1
