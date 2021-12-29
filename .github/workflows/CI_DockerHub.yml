@@ -1,0 +1,51 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI con gradle
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ] #se ejecturá cuando hagamos un push a esta rama
+  
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: #y también podremos ejecturar el workflow manualmente desde github
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #el repo solo se puede leer
+      packages: write # para tener acceso a los binarios resultantes de los builds
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      # Runs a single command using the runners shell
+      - name: Set up JDK 8 #Run a one-line script
+        uses: actions/setup-java@v2
+        with:
+           java-version: '8'
+           distribution: 'adopt'
+           server-id: github #value of the distributionManagement/repository/id field of the pom.xml
+           settings-path: ${{ github.workspace}} #location for the settings.xml file
+      - name: set up fradle
+        uses: gradle/gradle-build-action@v2
+        with:
+            gradle-version: 2.1
+      
+      #### builds #####
+      - name: hacer build del frontend
+        working-directory: src/Clients
+        run: ./gradlew build
+
+      - name: hacer build del backend
+        working-directory: src/Backend/OrderService
+        run: ./gradlew build test
