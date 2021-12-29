@@ -1,0 +1,79 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI con gradle
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ] #se ejecturá cuando hagamos un push a esta rama
+  
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: #y también podremos ejecturar el workflow manualmente desde github
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #el repo solo se puede leer
+      packages: write # para tener acceso a los binarios resultantes de los builds
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      # Runs a single command using the runners shell
+      - name: Set up JDK 8 #Run a one-line script
+        uses: actions/setup-java@v2
+        with:
+           java-version: '8'
+           distribution: 'adopt'
+           server-id: github #value of the distributionManagement/repository/id field of the pom.xml
+           settings-path: ${{ github.workspace}} #location for the settings.xml file
+      - name: set up fradle
+        uses: gradle/gradle-build-action@v2
+        with:
+            gradle-version: 2.1
+      
+      #### builds #####
+      - name: hacer build del frontend
+        working-directory: src/Clients
+        run: ./gradlew build
+
+      - name: hacer build del backend
+        working-directory: src/Backend/OrderService
+        run: ./gradlew build test
+
+      - name: dockerizar el front y el backend
+        run: | 
+           cp src/Clients/build/libs/*.war deploy/docker/Clients/drop #copiar el resultado del build para la nueva imagen
+           docker build -t partsunlimitedmrp/web deploy/docker/Clients
+           cp src/Backend/OrderService/build/libs/ordering* deploy/docker/Order/drop 
+           docker build -t partsunlimitedmrp/order deploy/docker/Order
+           
+     ### subir imagenes a dockerhub ####
+      - name: Login to dockerhub
+        uses: docker/login-action@v1
+        with:
+         #username: ${{ secrets.DOCKERHUB_USERNAME }} #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
+         #password: ${{ secrets.DOCKERHUB_PASSWORD }}
+         username: celiaUCLM #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
+         password: Toledo012@
+      - name: Etiquetar con formato dockerhub
+        run: |
+         #docker tag partsunlimitedmrp/web ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:web
+         #docker tag partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:order
+         docker tag partsunlimitedmrp/web celiaUCLM/partsunlimitedmrp:web
+         docker tag partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:order
+      - name: Push a dockerhub
+        run: |
+           #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:order
+           #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:web
+           docker push partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:order
+           docker push partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:web
