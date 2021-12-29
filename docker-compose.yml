@@ -30,7 +30,18 @@ services:
             restart_policy:
                 condition: on-failure
         ports:
-            - "80:8080"
-        
+            - "8080:8080"
+    order:
+        image: celiauclm/partsunlimitedmpr:web
+        deploy:
+            replicas: 1
+            resources:
+                limits:
+                    cpus: "0.25"
+                    memory: 300M
+            restart_policy:
+                condition: on-failure
+        ports:
+            - "80:8080"    
 volumes:
     db-data:
