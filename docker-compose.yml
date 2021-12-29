@@ -16,7 +16,7 @@ services:
         - "27017:27017"
     volumes:
         - "db-data:/data/db" #para dar persistencia a la sesion
-    order:
+  order:
         image: celiauclm/partsunlimitedmpr:order
         depends_on:
 #le pasamos al servicio order la IP del servicio mongo
@@ -31,7 +31,7 @@ services:
                 condition: on-failure
         ports:
             - "8080:8080"
-    web:
+   web:
         image: celiauclm/partsunlimitedmpr:web
         deploy:
             replicas: 1
