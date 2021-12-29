@@ -49,3 +49,31 @@ jobs:
       - name: hacer build del backend
         working-directory: src/Backend/OrderService
         run: ./gradlew build test
+
+      - name: dockerizar el front y el backend
+        run: | 
+           cp src/Clients/build/libs/*.war deploy/docker/Clients/drop #copiar el resultado del build para la nueva imagen
+           docker build -t partsunlimitedmrp/web deploy/docker/Clients
+           cp src/Backend/OrderService/build/libs/ordering* deploy/docker/Order/drop 
+           docker build -t partsunlimitedmrp/order deploy/docker/Order
+           
+     ### subir imagenes a dockerhub ####
+      - name: Login to dockerhub
+        uses: docker/login-action@v1
+        with:
+         #username: ${{ secrets.DOCKERHUB_USERNAME }} #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
+         #password: ${{ secrets.DOCKERHUB_PASSWORD }}
+         username: celiaUCLM #CREAR LA VARIABLE DE ENTORNO EN SETTINGS --> SECRETS
+         password: Toledo012@
+      - name: Etiquetar con formato dockerhub
+        run: |
+         #docker tag partsunlimitedmrp/web ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:web
+         #docker tag partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:order
+         docker tag partsunlimitedmrp/web celiaUCLM/partsunlimitedmrp:web
+         docker tag partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:order
+      - name: Push a dockerhub
+        run: |
+           #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:order
+           #docker push partsunlimitedmrp/order ${{ secrets.DOCKERHUB_USERNAME }}/partsunlimitedmrp:web
+           docker push partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:order
+           docker push partsunlimitedmrp/order celiaUCLM/partsunlimitedmrp:web
