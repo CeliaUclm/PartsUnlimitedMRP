@@ -2,7 +2,7 @@ version: "3"
 services:
 #Celia
   mongo:
-    image: celiauclm/partsunlimitedmpr:db
+    image: celiauclm/partsunlimitedmrp:db
     deploy:
         replicas: 1 #para escalabilidad del servicio
         resources:
@@ -17,7 +17,7 @@ services:
     volumes:
         - "db-data:/data/db" #para dar persistencia a la sesion
   order:
-        image: celiauclm/partsunlimitedmpr:order
+        image: celiauclm/partsunlimitedmrp:order
         depends_on:
 #le pasamos al servicio order la IP del servicio mongo
             - "mongo"
@@ -32,7 +32,7 @@ services:
         ports:
             - "8080:8080"
   web:
-        image: celiauclm/partsunlimitedmpr:web
+        image: celiauclm/partsunlimitedmrp:web
         deploy:
             replicas: 1
             resources:
